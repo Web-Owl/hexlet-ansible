@@ -10,12 +10,13 @@
       tags:
         - update_cache
 
-    - name: Install packages git, make, nodejs
+    - name: Install packages git, make, nodejs, zsh
       ansible.builtin.apt:
         name:
           - git
           - make
           - nodejs
+          - zsh
         state: present
       tags:
         - install_packages
