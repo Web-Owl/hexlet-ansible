@@ -1,0 +1,52 @@
+---
+- name: Setup server with tagged tasks
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Update package manager cache
+      ansible.builtin.apt:
+        update_cache: yes
+      tags:
+        - update_cache
+
+    - name: Install packages git, make, nodejs
+      ansible.builtin.apt:
+        name:
+          - git
+          - make
+          - nodejs
+        state: present
+      tags:
+        - install_packages
+
+    - name: Remove packages git, make, nodejs
+      ansible.builtin.apt:
+        name:
+          - git
+          - make
+          - nodejs
+        state: absent
+      tags:
+        - remove_packages
+
+    - name: Create user arya
+      ansible.builtin.user:
+        name: arya
+        state: present
+      tags:
+        - users
+
+    - name: Create user sansa
+      ansible.builtin.user:
+        name: sansa
+        state: present
+      tags:
+        - users
+
+    - name: Create user tirion
+      ansible.builtin.user:
+        name: tirion
+        state: present
+      tags:
+        - users

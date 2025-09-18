@@ -1,0 +1,60 @@
+- name: Create users with git config add ssh keys
+  hosts: appservers
+  become: yes
+
+  vars:
+    users:
+      - jaime
+      - sansa
+      - robert
+
+  tasks:
+    - name: Create users
+      ansible.builtin.user:
+        name: "{{ item }}"
+        state: present
+        create_home: yes
+      loop: "{{ users }}"
+
+    - name: Create .ssh directory
+      file:
+        path: "/home/{{ item }}/.ssh"
+        state: directory
+        owner: "{{ item }}"
+        group: "{{ item }}"
+      loop: "{{ users }}"
+
+    - name: Copy authorized_keys
+      copy:
+        src: id_rsa.pub
+        dest: "/home/{{ item }}/.ssh/authorized_keys"
+        owner: "{{ item }}"
+        group: "{{ item }}"
+        mode: '0600'
+      loop: "{{ users }}"
+
+    - name: Create .gitconfig with user-specific email and name
+      copy:
+        dest: "/home/{{ item }}/.gitconfig"
+        content: |
+          [alias]
+            co = checkout
+            ci = commit
+            st = status
+            br = branch
+            hist = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
+            type = cat-file -t
+            dump = cat-file -p
+            commend = commit --amend
+          [core]
+            excludesFile = ~/.gitignore_global
+            editor = vim
+          [user]
+            email = {{ item }}@test.com
+            name = {{ item }}
+          [credential]
+            helper = store
+        owner: "{{ item }}"
+        group: "{{ item }}"
+        mode: '0600'
+      loop: "{{ users }}"
